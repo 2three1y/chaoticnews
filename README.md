@@ -10,6 +10,7 @@ Live on X: https://x.com/ChaoticNewsHQ (the link is in every page's header and f
 
 - Front page: `index.html`
 - All stories: `stories/index.html` (newest first, plus sections)
+- Section pages: `section/breaking.html`, `section/tech.html`, `section/scams.html`, `section/beats.html`, `section/weather.html` (the section tabs in the nav bar)
 - Every story: `stories/<slug>.html`
 - Story list for scripts: `stories.json`
 - RSS feed (for auto-posting): `feed.xml`
@@ -60,7 +61,8 @@ More paragraphs. **Bold**, *italic* and [links](https://example.com) work.
 
 - `title`, `dek` and `section` are required. Sections: Breaking, Tech, Scams, Beats, Weather.
 - `date` is optional (defaults to now, Eastern time). `slug` is optional (made from the title).
-- `author` defaults to "Chaotic News Network Staff". Optional: `author_title`, `featured`, `dateline`, `correction`.
+- `author` defaults to "Chaotic News Network Staff". Optional: `author_title`, `featured`, `dateline`, `correction`, `updated` (a later date/time, shown as the story's "Updated" line).
+- Pictures: `image` (a path inside the repo, for example `images/printer.png`) and `image_alt` (what the picture shows, for VoiceOver). If `image` is set without `image_alt`, the build stops with an error. Without an `image`, each story gets an original title-card graphic for its section, which already has alt text. Only use pictures we made or are allowed to use, no photos of real people.
 - Use `##` for subheads (each page already has its one main heading, the title).
 
 ### Story format (JSON)
@@ -75,8 +77,12 @@ The same fields work as a `.json` file, with the story text in `body` (Markdown)
 
 A daily job can write two story files and run `python3 tools/add_story.py a.md b.md`, then commit. Rules for every story: clearly made up, no real people in anything but obviously silly harmless ways, no explicit stuff, nothing that could pass for real news about a real tragedy.
 
+## Design
+
+The look is a TV news network site, all original: a "CN" logo bug, a black masthead with the "Live on X" pill, section tabs, a red BREAKING bar with the four newest headlines (plain links, nothing moves), a lead story, story cards, Most Read and More Top Stories. Story art is drawn as SVG by `tools/add_story.py` (`svg_art`), so no photos or outside images are used. Styles are in `style.css`; `share.js` powers the Copy link and Share buttons on story pages (they stay hidden if the browser can't do it).
+
 ## Accessibility
 
-Every page has a skip link, one main heading, headings in order, the story inside `main` and `article`, real links, and readable dates. No scripts, trackers or outside files.
+Every page has a skip link, one main heading, headings in order, header/nav/main/footer landmarks, the story inside `article`, real links and buttons, visible focus, alt text on every graphic (the logo reads "Chaotic News"), and readable dates. Story pages have one status message ("Link copied."). The only script is the local `share.js`; no trackers or outside files.
 
 Co-written with Tab
