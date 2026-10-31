@@ -245,7 +245,7 @@ def page(prefix, title, description, current, skip_label, main_html, ticker):
   <div>
     <p class="credit">Co-written with Tab</p>
     <p>{SATIRE}</p>
-    <p class="social"><a href="{X_URL}" rel="me"><span aria-hidden="true">📺 </span>Breaking news that never happened, live on X: @{X_HANDLE}</a></p>
+    <p class="social"><a href="{X_URL}" rel="me"><span aria-hidden="true">📺 </span>Live on X: @{X_HANDLE}</a></p>
     <p><a href="{prefix}feed.xml">RSS feed</a></p>
   </div>
 </footer>
