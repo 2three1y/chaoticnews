@@ -227,7 +227,7 @@ def page(prefix, title, description, current, skip_label, main_html, ticker):
   <div class="mast">
     <span class="logo" aria-hidden="true">CNN</span>
     <a class="brand" href="{home}">{SITE_NAME}<small>{TAGLINE}</small></a>
-    <a class="follow" href="{X_URL}" rel="me">Follow on X</a>
+    <a class="follow" href="{X_URL}" rel="me">Live on X</a>
   </div>
   <nav class="sections" aria-label="Sections">
     <ul>
@@ -245,7 +245,7 @@ def page(prefix, title, description, current, skip_label, main_html, ticker):
   <div>
     <p class="credit">Co-written with Tab</p>
     <p>{SATIRE}</p>
-    <p class="social"><a href="{X_URL}" rel="me">Follow us on X: @{X_HANDLE}</a></p>
+    <p class="social"><a href="{X_URL}" rel="me"><span aria-hidden="true">📺 </span>Breaking news that never happened, live on X: @{X_HANDLE}</a></p>
     <p><a href="{prefix}feed.xml">RSS feed</a></p>
   </div>
 </footer>

@@ -6,7 +6,7 @@ Unbiased. Unverified. Unhinged.
 
 Live: https://2three1y.github.io/chaoticnews/
 
-Follow on X: https://x.com/ChaoticNewsHQ (the link is in every page's header and footer, set by `X_HANDLE` in `tools/add_story.py`)
+Live on X: https://x.com/ChaoticNewsHQ (the link is in every page's header and footer, set by `X_HANDLE` in `tools/add_story.py`)
 
 - Front page: `index.html`
 - All stories: `stories/index.html` (newest first, plus sections)
