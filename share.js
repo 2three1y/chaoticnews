@@ -1,4 +1,6 @@
 // Chaotic News share buttons. Local file, no trackers.
+// Written by tools/add_story.py (SHARE_JS); the copy messages come from each
+// button's data-done / data-fail, set from LABEL in the generator.
 (function () {
   var status = document.getElementById("share-status");
   function say(msg) {
@@ -12,8 +14,8 @@
     b.hidden = false;
     b.addEventListener("click", function () {
       navigator.clipboard.writeText(b.getAttribute("data-copy")).then(
-        function () { say("Link copied."); },
-        function () { say("Couldn't copy the link."); });
+        function () { say(b.getAttribute("data-done") || "Link copied."); },
+        function () { say(b.getAttribute("data-fail") || "Couldn't copy the link."); });
     });
   });
   document.querySelectorAll("[data-share]").forEach(function (b) {
