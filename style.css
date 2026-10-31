@@ -55,4 +55,7 @@ footer{border-top:4px solid var(--ink);background:var(--soft)}
 footer div{max-width:46rem;margin:0 auto;padding:1.25rem;font-size:.9rem;color:var(--muted)}
 footer p{margin:.2rem 0}
 footer .credit{color:var(--ink);font-weight:700}
+.follow{margin-left:auto;font-size:.85rem;font-weight:700;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:.35rem .8rem;text-decoration:none;white-space:nowrap}
+.follow:hover{border-color:var(--ink)}
+footer .social a{color:var(--ink);font-weight:700}
 @media (prefers-color-scheme:dark){:root{--ink:#eceef2;--muted:#a9afbb;--line:#30343c;--bg:#111317;--soft:#1a1d23;--red:#ff5a63}.logo{background:#c81e2a}.ticker{background:#c81e2a}a:focus-visible{outline-color:#7fb0ff}}
