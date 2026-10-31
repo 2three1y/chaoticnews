@@ -7,7 +7,9 @@
     "section": "Tech",
     "author": "Dex Voltage",
     "url": "https://2three1y.github.io/chaoticnews/stories/youtube-bot-check-asks-humans-to-prove-they-are-not-big-d-randy.html",
-    "featured": true
+    "featured": true,
+    "card": "https://2three1y.github.io/chaoticnews/cards/stories/youtube-bot-check-asks-humans-to-prove-they-are-not-big-d-randy.png?v=2fc5c050",
+    "card_alt": "Chaotic News title card: the headline “YouTube Bot Check Now Asking Humans to Prove They Are Not Big D Randy” in white over Tech section art, with the red CN logo, a yellow SATIRE tag and the line “Satire, every story is made up.”"
   },
   {
     "slug": "area-teen-reports-scammer-scammer-feels-very-attacked",
@@ -17,7 +19,9 @@
     "section": "Breaking",
     "author": "Lorraine Static",
     "url": "https://2three1y.github.io/chaoticnews/stories/area-teen-reports-scammer-scammer-feels-very-attacked.html",
-    "featured": true
+    "featured": true,
+    "card": "https://2three1y.github.io/chaoticnews/cards/stories/area-teen-reports-scammer-scammer-feels-very-attacked.png?v=9cf7216f",
+    "card_alt": "Chaotic News title card: the headline “Area Teen Reports Scammer, Scammer Reports Feeling “Very Attacked”” in white over Breaking section art, with the red CN logo, a yellow SATIRE tag and the line “Satire, every story is made up.”"
   },
   {
     "slug": "steve-from-microsoft-asks-supervisor-also-named-steve",
@@ -27,7 +31,9 @@
     "section": "Scams",
     "author": "Hank Unverified",
     "url": "https://2three1y.github.io/chaoticnews/stories/steve-from-microsoft-asks-supervisor-also-named-steve.html",
-    "featured": true
+    "featured": true,
+    "card": "https://2three1y.github.io/chaoticnews/cards/stories/steve-from-microsoft-asks-supervisor-also-named-steve.png?v=16ab75f4",
+    "card_alt": "Chaotic News title card: the headline ““Steve From Microsoft” Asks Supervisor, Also Named Steve, for Help” in white over Scams section art, with the red CN logo, a yellow SATIRE tag and the line “Satire, every story is made up.”"
   },
   {
     "slug": "scam-account-blocked-cries-in-comic-sans",
@@ -37,7 +43,9 @@
     "section": "Scams",
     "author": "Gary Breakingnews",
     "url": "https://2three1y.github.io/chaoticnews/stories/scam-account-blocked-cries-in-comic-sans.html",
-    "featured": true
+    "featured": true,
+    "card": "https://2three1y.github.io/chaoticnews/cards/stories/scam-account-blocked-cries-in-comic-sans.png?v=09ffe1d9",
+    "card_alt": "Chaotic News title card: the headline “Local Scam Account Blocked, Cries in Comic Sans” in white over Scams section art, with the red CN logo, a yellow SATIRE tag and the line “Satire, every story is made up.”"
   },
   {
     "slug": "bulgeet-bibi-website-zero-working-buttons",
@@ -47,7 +55,9 @@
     "section": "Scams",
     "author": "Penny Popup",
     "url": "https://2three1y.github.io/chaoticnews/stories/bulgeet-bibi-website-zero-working-buttons.html",
-    "featured": true
+    "featured": true,
+    "card": "https://2three1y.github.io/chaoticnews/cards/stories/bulgeet-bibi-website-zero-working-buttons.png?v=faf430aa",
+    "card_alt": "Chaotic News title card: the headline “Bulgeet & Bibi Enterprises Website Still Has Zero Working Buttons” in white over Scams section art, with the red CN logo, a yellow SATIRE tag and the line “Satire, every story is made up.”"
   },
   {
     "slug": "big-d-randy-takes-out-local-ai",
@@ -57,6 +67,8 @@
     "section": "Tech",
     "author": "Chaotic News Network Staff",
     "url": "https://2three1y.github.io/chaoticnews/stories/big-d-randy-takes-out-local-ai.html",
-    "featured": true
+    "featured": true,
+    "card": "https://2three1y.github.io/chaoticnews/cards/stories/big-d-randy-takes-out-local-ai.png?v=b26cb8a6",
+    "card_alt": "Chaotic News title card: the headline “BREAKING: Big D Randy Takes Out Local AI With Name Alone” in white over Tech section art, with the red CN logo, a yellow SATIRE tag and the line “Satire, every story is made up.”"
   }
 ]

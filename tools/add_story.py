@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Chaotic News Network story generator (no dependencies, Python 3.9+).
+"""Chaotic News Network story generator (Python 3.9+; Pillow for card images).
 
 Add stories:   python3 tools/add_story.py new-story.md [another.md ...]
                python3 tools/add_story.py new-story.json
@@ -9,7 +9,8 @@ Replace one:   python3 tools/add_story.py --replace fixed-story.md
 Every story lives in content/<slug>.md (front matter + Markdown body).
 Each run copies new stories into content/, then rebuilds everything from it:
 stories/<slug>.html, stories/index.html, section/<section>.html,
-stories.json, feed.xml and index.html.
+stories.json, feed.xml, index.html, and the link-preview card images
+cards/*.png (drawn by tools/social_cards.py; that part needs Pillow).
 See README.md for the story format.
 """
 import datetime as dt
@@ -41,6 +42,20 @@ SECTIONS = ["Breaking", "Tech", "Scams", "Beats", "Weather"]
 SECTION_LABEL = {"Weather": "Weather (it's chaotic)"}
 EMPTY_NOTE = {"Weather": "No stories yet. Forecast: chaotic."}
 REQUIRED = ("title", "dek", "section")
+# Link-preview cards (Open Graph / X cards). Read by X, Mastodon and the rest of
+# the fediverse, Bluesky, Nostr clients, Discord, iMessage, WhatsApp, Facebook,
+# Reddit, LinkedIn, Telegram and Slack. Images: cards/*.png, 1200x630, built by
+# tools/social_cards.py on every run. No Mastodon account yet: when there is one,
+# add its profile URL to FEDIVERSE_PROFILE (adds rel="me" + fediverse:creator).
+OG_SITE_NAME = "Chaotic News"
+OG_LOCALE = "en_US"
+CARD_W, CARD_H = 1200, 630
+FEDIVERSE_PROFILE = ""      # e.g. "https://mastodon.social/@ChaoticNewsHQ"
+FEDIVERSE_CREATOR = ""      # e.g. "@ChaoticNewsHQ@mastodon.social"
+SITE_CARD = "cards/site.png"
+SITE_CARD_ALT = ("Chaotic News site card: the red CN logo, the tagline \u201cUnbiased. Unverified. "
+                 "Unhinged.\u201d and the words \u201cBreaking news that never happened.\u201d on dark red art, with a yellow "
+                 "SATIRE tag and the line \u201cSatire, every story is made up.\u201d")
 
 # ---------------------------------------------------------------- parsing
 
@@ -259,7 +274,92 @@ def art(s, prefix, size="card", live=False):
     return svg_art(s, size, live).replace("{prefix}", prefix)
 
 
-def page(prefix, title, description, current, skip_label, main_html, ticker, scripts=""):
+def card_path(kind, slug=None):
+    """Repo-relative path of a social card PNG."""
+    if kind == "site":
+        return SITE_CARD
+    if kind == "section":
+        return f"cards/section/{slug}.png"
+    return f"cards/stories/{slug}.png"
+
+
+def card_url(rel):
+    """Absolute https URL of a card, with a version stamp so networks refetch
+    the picture when it changes."""
+    p = ROOT / rel
+    v = f"?v={zlib.crc32(p.read_bytes()) & 0xffffffff:08x}" if p.exists() else ""
+    return f"{SITE_URL}{rel}{v}"
+
+
+def story_card_alt(s):
+    return (f"Chaotic News title card: the headline \u201c{smart_quotes(s['title'])}\u201d "
+            f"in white over {s['section']} section art, with the red CN logo, a yellow "
+            f"SATIRE tag and the line \u201cSatire, every story is made up.\u201d")
+
+
+def section_card_alt(sec):
+    return (f"Chaotic News {sec} section card: the red CN logo and the words "
+            f"\u201c{sec} desk\u201d and \u201c{SECTION_BLURB.get(sec, '')}\u201d over {sec} "
+            f"section art, with a yellow SATIRE tag and the line \u201cSatire, every story is made up.\u201d")
+
+
+def satire_desc(text):
+    text = smart_quotes(str(text)).strip()
+    return text if text.rstrip(".").endswith("Satire") else f"{text} Satire."
+
+
+def social_head(prefix, social):
+    """<head> tags for link previews on every network."""
+    url = social["url"]
+    title = social["title"]
+    desc = social["description"]
+    img = card_url(social["image"])
+    alt = social["image_alt"]
+    m = [
+        f'<link rel="canonical" href="{esc(url)}">',
+        f'<meta property="og:type" content="{social.get("type", "website")}">',
+        f'<meta property="og:site_name" content="{esc(OG_SITE_NAME)}">',
+        f'<meta property="og:locale" content="{OG_LOCALE}">',
+        f'<meta property="og:title" content="{esc(title)}">',
+        f'<meta property="og:description" content="{esc(desc)}">',
+        f'<meta property="og:url" content="{esc(url)}">',
+        f'<meta property="og:image" content="{esc(img)}">',
+        f'<meta property="og:image:secure_url" content="{esc(img)}">',
+        '<meta property="og:image:type" content="image/png">',
+        f'<meta property="og:image:width" content="{CARD_W}">',
+        f'<meta property="og:image:height" content="{CARD_H}">',
+        f'<meta property="og:image:alt" content="{esc(alt)}">',
+    ]
+    if social.get("type") == "article":
+        m += [
+            f'<meta property="article:published_time" content="{social["published"]}">',
+            f'<meta property="article:modified_time" content="{social["modified"]}">',
+            f'<meta property="article:section" content="{esc(social["section"])}">',
+            f'<meta property="article:author" content="{esc(social.get("author", SITE_NAME))}">',
+            '<meta property="article:tag" content="Satire">',
+        ]
+    m += [
+        '<meta name="twitter:card" content="summary_large_image">',
+        f'<meta name="twitter:site" content="@{X_HANDLE}">',
+        f'<meta name="twitter:creator" content="@{X_HANDLE}">',
+        f'<meta name="twitter:title" content="{esc(title)}">',
+        f'<meta name="twitter:description" content="{esc(desc)}">',
+        f'<meta name="twitter:image" content="{esc(img)}">',
+        f'<meta name="twitter:image:alt" content="{esc(alt)}">',
+    ]
+    if FEDIVERSE_PROFILE:
+        m.append(f'<link rel="me" href="{esc(FEDIVERSE_PROFILE)}">')
+    if FEDIVERSE_CREATOR:
+        m.append(f'<meta name="fediverse:creator" content="{esc(FEDIVERSE_CREATOR)}">')
+    m += [
+        f'<link rel="icon" href="{prefix}favicon.ico" sizes="any">',
+        f'<link rel="icon" type="image/png" sizes="32x32" href="{prefix}favicon-32.png">',
+        f'<link rel="apple-touch-icon" href="{prefix}apple-touch-icon.png">',
+    ]
+    return "\n".join(m)
+
+
+def page(prefix, title, description, current, skip_label, main_html, ticker, scripts="", social=None):
     home = f"{prefix}./" if prefix else "./"
     nav = [("Top Stories", home, "home")]
     for sec in SECTIONS:
@@ -279,6 +379,7 @@ def page(prefix, title, description, current, skip_label, main_html, ticker, scr
 <title>{title}</title>
 <meta name="description" content="{esc(description)}">
 <meta name="theme-color" content="#0b0b0d">
+{social_head(prefix, social)}
 <link rel="stylesheet" href="{prefix}style.css">
 <link rel="alternate" type="application/rss+xml" title="{SITE_NAME}" href="{prefix}feed.xml">
 </head>
@@ -447,15 +548,24 @@ def render_story(s, stories):
   </ul>
   <p class="more"><a href="./">All stories</a></p>
 </section>"""
+    social = {"type": "article", "title": plain_title, "description": satire_desc(s["dek"]),
+              "url": url, "image": card_path("story", s["slug"]), "image_alt": story_card_alt(s),
+              "published": s["when"].isoformat(), "modified": upd.isoformat(),
+              "section": s["section"], "author": s["author"]}
     return page("../", f"{title_text(s['title'])} | {SITE_NAME}", f"{smart_quotes(s['dek'])} Satire from {SITE_NAME}.",
                 SECTION_SLUG[s["section"]], "Skip to story", main, ticker_for(stories, "../"),
-                '\n<script src="../share.js"></script>')
+                '\n<script src="../share.js"></script>', social)
+
+
+HOME_SOCIAL = {"type": "website", "title": f"{OG_SITE_NAME}: {TAGLINE}",
+               "description": "Breaking news that never happened. Every story is made up. Satire.",
+               "url": SITE_URL, "image": SITE_CARD, "image_alt": SITE_CARD_ALT}
 
 
 def render_home(stories):
     if not stories:
         main = '<h1 class="page-head">Top Stories</h1>\n<p>No stories yet.</p>'
-        return page("", f"{SITE_NAME}", TAGLINE, "home", "Skip to top stories", main, ticker_for(stories, ""))
+        return page("", f"{SITE_NAME}", TAGLINE, "home", "Skip to top stories", main, ticker_for(stories, ""), social=HOME_SOCIAL)
     lead, rest = stories[0], stories[1:]
     grid = rest[:3]
     shown = {lead["slug"]} | {s["slug"] for s in grid}
@@ -520,7 +630,7 @@ def render_home(stories):
 <p class="more"><a href="stories/">All {len(stories)} stories, newest first</a></p>"""
     return page("", f"{SITE_NAME}: {TAGLINE}",
                 f"Satire news, updated daily. Latest: {smart_quotes(lead['title'])}",
-                "home", "Skip to top stories", main, ticker_for(stories, ""))
+                "home", "Skip to top stories", main, ticker_for(stories, ""), social=HOME_SOCIAL)
 
 
 def render_section(sec, stories):
@@ -552,7 +662,12 @@ def render_section(sec, stories):
 </div>
 <p class="more"><a href="../stories/">All stories</a></p>"""
     return page("../", f"{esc(sec)} | {SITE_NAME}", f"{SECTION_BLURB.get(sec, '')} Satire from {SITE_NAME}.",
-                SECTION_SLUG[sec], f"Skip to {esc(sec)} stories", main, ticker_for(stories, "../"))
+                SECTION_SLUG[sec], f"Skip to {esc(sec)} stories", main, ticker_for(stories, "../"),
+                social={"type": "website", "title": f"{sec} | {OG_SITE_NAME}",
+                        "description": satire_desc(SECTION_BLURB.get(sec, "")),
+                        "url": f"{SITE_URL}section/{SECTION_SLUG[sec]}.html",
+                        "image": card_path("section", SECTION_SLUG[sec]),
+                        "image_alt": section_card_alt(sec)})
 
 
 def render_index(stories):
@@ -581,7 +696,10 @@ def render_index(stories):
   {chr(10).join(secs)}
 </section>"""
     return page("../", f"All stories | {SITE_NAME}", "Every Chaotic News story, newest first.",
-                "all", "Skip to stories", main, ticker_for(stories, "../"))
+                "all", "Skip to stories", main, ticker_for(stories, "../"),
+                social={"type": "website", "title": f"All stories | {OG_SITE_NAME}",
+                        "description": "Every Chaotic News story, newest first. Satire.",
+                        "url": f"{SITE_URL}stories/", "image": SITE_CARD, "image_alt": SITE_CARD_ALT})
 
 
 def render_feed(stories):
@@ -615,12 +733,42 @@ def render_feed(stories):
 def manifest(stories):
     return [{"slug": s["slug"], "title": smart_quotes(s["title"]), "dek": smart_quotes(s["dek"]),
              "date": s["when"].isoformat(), "section": s["section"], "author": s["author"],
-             "url": f"{SITE_URL}stories/{s['slug']}.html", "featured": s["featured"]}
+             "url": f"{SITE_URL}stories/{s['slug']}.html", "featured": s["featured"],
+             "card": card_url(card_path("story", s["slug"])), "card_alt": story_card_alt(s)}
             for s in stories]
+
+
+def build_cards(stories):
+    """Draw the social card PNGs (needs Pillow). Without Pillow the pages still
+    build and point at the cards already in cards/."""
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import social_cards
+    except ImportError as e:
+        print(f"warning: social cards not redrawn ({e}); run: pip install pillow", file=sys.stderr)
+        return
+    pal = PALETTE["Breaking"]
+    social_cards.draw_card(ROOT / SITE_CARD, "Breaking news that never happened.", "Top Stories",
+                           pal, "site", kicker=TAGLINE)
+    for sec in SECTIONS:
+        social_cards.draw_card(ROOT / card_path("section", SECTION_SLUG[sec]), f"{sec} desk",
+                               sec, PALETTE.get(sec, pal), "section-" + sec,
+                               kicker=SECTION_BLURB.get(sec))
+    keep = set()
+    for s in stories:
+        p = ROOT / card_path("story", s["slug"])
+        keep.add(p.name)
+        social_cards.draw_card(p, smart_quotes(s["title"]), s["section"],
+                               PALETTE.get(s["section"], pal), s["slug"])
+    for old in (ROOT / "cards" / "stories").glob("*.png"):
+        if old.name not in keep:
+            old.unlink()
+    social_cards.draw_icons(ROOT)
 
 
 def rebuild():
     stories = load_stories()
+    build_cards(stories)
     STORIES.mkdir(exist_ok=True)
     keep = {f"{s['slug']}.html" for s in stories} | {"index.html"}
     for old in STORIES.glob("*.html"):
@@ -673,7 +821,7 @@ def main(argv):
     stories = rebuild()
     for slug in added:
         print(f"added  stories/{slug}.html")
-    print(f"built  {len(stories)} stories, stories/index.html, stories.json, feed.xml, index.html")
+    print(f"built  {len(stories)} stories, stories/index.html, stories.json, feed.xml, index.html, cards/*.png")
     return 0
 
 

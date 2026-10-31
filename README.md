@@ -14,6 +14,7 @@ Live on X: https://x.com/ChaoticNewsHQ (the link is in every page's header and f
 - Every story: `stories/<slug>.html`
 - Story list for scripts: `stories.json`
 - RSS feed (for auto-posting): `feed.xml`
+- Link-preview card images: `cards/site.png`, `cards/section/<section>.png`, `cards/stories/<slug>.png`
 
 ## Adding stories
 
@@ -34,7 +35,7 @@ python3 tools/add_story.py --rebuild           # rebuild everything from content
 python3 tools/add_story.py --replace fixed.md  # overwrite a story with the same title/slug
 ```
 
-No installs needed, just Python 3.9 or newer.
+Python 3.9 or newer. Drawing the link-preview card images also needs Pillow (`pip install pillow`); without it the pages still build and keep the cards already in `cards/`.
 
 ### Story format (Markdown)
 
@@ -80,6 +81,14 @@ A daily job can write two story files and run `python3 tools/add_story.py a.md b
 ## Design
 
 The look is a TV news network site, all original: a "CN" logo bug, a black masthead with the "Live on X" pill, section tabs, a red BREAKING bar with the four newest headlines (plain links, nothing moves), a lead story, story cards, Most Read and More Top Stories. Story art is drawn as SVG by `tools/add_story.py` (`svg_art`), so no photos or outside images are used. Styles are in `style.css`; `share.js` powers the Copy link and Share buttons on story pages (they stay hidden if the browser can't do it).
+
+## Social cards (link previews)
+
+Every page carries Open Graph and X card tags, so a link shows a big preview card on X, Mastodon and the rest of the fediverse, Bluesky, Nostr apps, Discord, iMessage, WhatsApp, Facebook, Reddit, LinkedIn, Telegram and Slack (they all read Open Graph). Each page has a canonical URL, a description ending in "Satire.", and a 1200x630 PNG card with alt text (`og:image:alt`, `twitter:image:alt`).
+
+The cards are drawn on every build by `tools/social_cards.py` (Pillow, no internet): the CN logo, the section colours, the headline, and a yellow SATIRE tag plus "Satire · every story is made up" on the card itself, so a screenshot of a card can't pass as real news. One card per story, one per section, and a site card for the front page and the stories index. New stories get theirs automatically. The same script draws `favicon.ico`, `favicon-32.png` and `apple-touch-icon.png`.
+
+No Mastodon account yet. When there is one, put its profile URL in `FEDIVERSE_PROFILE` (and `@name@server` in `FEDIVERSE_CREATOR`) in `tools/add_story.py` and rebuild.
 
 ## Accessibility
 
