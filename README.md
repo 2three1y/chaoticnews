@@ -10,7 +10,9 @@ Live on X: https://x.com/ChaoticNewsHQ (the link is in every page's header and f
 
 - Front page: `index.html`
 - All stories: `stories/index.html` (newest first, plus sections)
-- Section pages: `section/breaking.html`, `section/tech.html`, `section/scams.html`, `section/beats.html`, `section/weather.html` (the section tabs in the nav bar)
+- Section pages: `section/breaking.html`, `section/tech.html`, `section/gaming.html`, `section/scams.html`, `section/beats.html`, `section/weather.html` (the section tabs in the nav bar)
+- Story pictures: `images/<slug>.jpg` (1280x720; set `image:` and `image_alt:` in the story's front matter; alt text is required)
+- Every story list on the site is a numbered list (`<ol>`), and every story shows a topic label like "Tech · Nov 2"
 - Every story: `stories/<slug>.html`
 - Story list for scripts: `stories.json`
 - RSS feed (for auto-posting): `feed.xml`
