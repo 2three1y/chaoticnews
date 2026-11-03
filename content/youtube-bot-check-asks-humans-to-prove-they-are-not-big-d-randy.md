@@ -6,6 +6,8 @@ date: 2026-10-31T11:00:00-04:00
 author: Dex Voltage
 author_title: Tech Desk
 featured: true
+image: images/youtube-bot-check-asks-humans-to-prove-they-are-not-big-d-randy.jpg
+image_alt: A nervous person leaning close to a laptop that shows one big checked box.
 ---
 Viewers trying to watch videos this weekend were greeted by a new kind of security check. It no longer asks them to click every square with a traffic light. Instead, it asks a single question:
 

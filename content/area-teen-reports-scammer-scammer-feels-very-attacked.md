@@ -6,6 +6,8 @@ date: 2026-10-31T10:20:00-04:00
 author: Lorraine Static
 author_title: Breaking News Desk
 featured: true
+image: images/area-teen-reports-scammer-scammer-feels-very-attacked.jpg
+image_alt: A man in a cheap headset at a messy call-center desk, dabbing his eyes with a tissue, a phone beside him showing a blocked symbol.
 ---
 An area teen reported a scammer on Saturday morning, and the scammer has responded by reporting that he feels "very attacked," "deeply disrespected" and "honestly kind of bullied."
 

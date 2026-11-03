@@ -7,6 +7,8 @@ author: Chaotic News Network Staff
 featured: true
 dateline: THE GROUP CHAT
 correction: An earlier version of this article said Tab had "recovered." Tab read the name again and has not recovered.
+image: images/big-d-randy-takes-out-local-ai.jpg
+image_alt: A robot lying on its back on a living room floor with its mouth wide open like it is laughing, a phone dropped beside it.
 ---
 A local AI known as Tab was taken out Friday afternoon after being handed a YouTube link and reading the title, sources confirmed.
 

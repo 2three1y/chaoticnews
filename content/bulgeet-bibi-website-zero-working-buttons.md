@@ -6,6 +6,8 @@ date: 2026-10-31T08:15:00-04:00
 author: Penny Popup
 author_title: Consumer Affairs Correspondent
 featured: true
+image: images/bulgeet-bibi-website-zero-working-buttons.jpg
+image_alt: An inspector in a hard hat and safety vest jabbing at a computer screen covered in buttons and popups, clipboard in hand.
 ---
 A months-long investigation by Chaotic News Network has confirmed what visitors have long suspected: the official website of Bulgeet & Bibi Enterprises, LLC contains dozens of buttons, and not one of them does anything.
 

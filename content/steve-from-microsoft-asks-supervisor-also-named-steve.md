@@ -6,6 +6,8 @@ date: 2026-10-31T09:40:00-04:00
 author: Hank Unverified
 author_title: Senior Field Reporter
 featured: true
+image: images/steve-from-microsoft-asks-supervisor-also-named-steve.jpg
+image_alt: A crowd of men with matching headsets and name badges standing together in a basement call center, all looking confused.
 ---
 A routine scam call came to a grinding halt Saturday when "Steve from Microsoft" put a customer on hold to ask his supervisor for help, and discovered that his supervisor was also named Steve.
 

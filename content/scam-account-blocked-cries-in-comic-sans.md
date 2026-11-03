@@ -6,6 +6,8 @@ date: 2026-10-31T09:05:00-04:00
 author: Gary Breakingnews
 author_title: Scams Desk
 featured: true
+image: images/scam-account-blocked-cries-in-comic-sans.jpg
+image_alt: A phone on a desk under a spotlight, its screen bright yellow and red, a crumpled tissue beside it.
 ---
 A scam account known online as "Bibi ♡ (Bookworm)" was blocked Saturday morning, and has since released an emotional statement written entirely in Comic Sans, in bright yellow, on a red background, with three blinking words.
 

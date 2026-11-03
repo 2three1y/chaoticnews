@@ -38,7 +38,7 @@ TAGLINE = "Unbiased. Unverified. Unhinged."
 SATIRE = "Chaotic News is satire. All stories are made up."
 X_HANDLE = "ChaoticNewsHQ"
 X_URL = f"https://x.com/{X_HANDLE}"
-SECTIONS = ["Breaking", "Tech", "Scams", "Beats", "Weather"]
+SECTIONS = ["Breaking", "Tech", "Gaming", "Scams", "Beats", "Weather"]
 # ---- Laughable labels (Carter, 2026-10-31: "we need laughable labels").
 # Rule: the real word comes FIRST, the joke after, so VoiceOver users always
 # hear what a thing is before the punchline. Section slugs, URLs, the feed,
@@ -46,6 +46,7 @@ SECTIONS = ["Breaking", "Tech", "Scams", "Beats", "Weather"]
 SECTION_LABEL = {
     "Breaking": "Breaking: Still Breaking",
     "Tech": "Tech: Beep Boop",
+    "Gaming": "Gaming: Touch Grass Later",
     "Scams": "Scams: Nice Try, Steve",
     "Beats": "Beats: Turn It Up",
     "Weather": "Weather: We Guessed",
@@ -63,7 +64,7 @@ LABEL = {
     "most_read": "Most Read (By Our Moms)",
     "more_top": "More Top Stories, Somehow",
     "sections": "Sections (Pick Your Chaos)",
-    "related": "Related Stories, Allegedly",
+    "related": "More Stories (Allegedly Related)",
     "all_link": "All stories (yes, every single one)",
     "share_head": "Share This Story (We Dare You)",
     "copy": "Copy Link (No Returns)",
@@ -283,6 +284,7 @@ SECTION_SLUG = {s: s.lower() for s in SECTIONS}
 SECTION_BLURB = {
     "Breaking": "The news as it breaks, and sometimes before it happens.",
     "Tech": "Gadgets, apps, AI and the bots that are out to get us.",
+    "Gaming": "Games, consoles, controllers and the economy of skins.",
     "Scams": "Consumer alerts from the front lines of the gift card economy.",
     "Beats": "Music, drops and things that go boom in the speakers.",
     "Weather": "Forecast: chaotic.",
@@ -291,6 +293,7 @@ SECTION_BLURB = {
 PALETTE = {
     "Breaking": ("#9b0d18", "#1c0306", "#ff3b47"),
     "Tech": ("#123a8c", "#1d0b4a", "#5ab0ff"),
+    "Gaming": ("#1f6b2a", "#071f0c", "#7dff8a"),
     "Scams": ("#8a5a00", "#241600", "#ffc23d"),
     "Beats": ("#7a1270", "#1e0631", "#ff6ad5"),
     "Weather": ("#04606e", "#071f33", "#5ee6d0"),
@@ -300,6 +303,9 @@ SHARE_TEXT = "Read on Chaotic News (satire):"
 
 def section_href(prefix, sec):
     return f"{prefix}section/{SECTION_SLUG[sec]}.html"
+
+
+LAZY = {"card": 'loading="lazy" '}
 
 
 def svg_art(s, size="card", live=False):
@@ -322,7 +328,7 @@ def svg_art(s, size="card", live=False):
     label = f"{sec} desk title card{' with a LIVE badge' if live else ''}, Chaotic News graphic"
     if s.get("image"):
         return (f'<img class="art art-{size}" src="{{prefix}}{esc(s["image"])}" alt="{esc(s["image_alt"])}" '
-                f'loading="lazy" width="640" height="360">')
+                f'{LAZY.get(size, "")}width="1280" height="720">')
     return f"""<svg class="art art-{size}" viewBox="0 0 640 360" role="img" aria-label="{esc(label)}" focusable="false" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="{gid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{c1}"/><stop offset="1" stop-color="{c2}"/></linearGradient></defs><rect width="640" height="360" fill="url(#{gid})"/><path d="M0 360 L250 0 H300 L50 360Z" fill="#fff" fill-opacity="0.05"/><path d="M90 360 L340 0 H360 L110 360Z" fill="#fff" fill-opacity="0.04"/>{rings}{bars}<g><rect x="24" y="24" width="64" height="44" rx="4" fill="{'#fff' if sec == 'Breaking' else '#d1111c'}"/><text x="56" y="56" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="26" fill="{'#d1111c' if sec == 'Breaking' else '#fff'}">CN</text></g>{live_badge}<g><rect x="0" y="292" width="640" height="68" fill="#0b0b0d" fill-opacity="0.92"/><rect x="0" y="292" width="{len(sec) * 17 + 44}" height="68" fill="#d1111c"/><text x="22" y="336" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="28" fill="#fff" letter-spacing="1">{esc(sec.upper())}</text><text x="{len(sec) * 17 + 64}" y="335" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="22" fill="#fff" fill-opacity="0.85" letter-spacing="2">CHAOTIC NEWS</text></g></svg>"""
 
 
@@ -415,85 +421,12 @@ def social_head(prefix, social):
     return "\n".join(m)
 
 
-def page(prefix, title, description, current, skip_label, main_html, ticker, scripts="", social=None):
-    home = f"{prefix}./" if prefix else "./"
-    nav = [(LABEL["home"], home, "home")]
-    for sec in SECTIONS:
-        nav.append((sec_label(sec), section_href(prefix, sec), SECTION_SLUG[sec]))
-    nav.append((LABEL["all"], f"{prefix}stories/", "all"))
-    cur = ' aria-current="page"'
-    items = "\n".join(
-        f'      <li><a href="{href}"{cur if key == current else ""}>{esc(label)}</a></li>'
-        for label, href, key in nav)
-    foot_links = " ".join(
-        f'<li><a href="{href}">{esc(label)}</a></li>' for label, href, _ in nav)
-    return f"""<!DOCTYPE html>
-<html lang="en-US">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{title}</title>
-<meta name="description" content="{esc(description)}">
-<meta name="theme-color" content="#0b0b0d">
-{social_head(prefix, social)}
-<link rel="stylesheet" href="{prefix}style.css">
-<link rel="alternate" type="application/rss+xml" title="{SITE_NAME}" href="{prefix}feed.xml">
-</head>
-<body>
-<a class="skip" href="#main">{skip_label}</a>
-<header class="site">
-  <p class="satire-strip"><strong>Satire:</strong> {LABEL["satire_strip"]}</p>
-  <div class="mast">
-    <div class="mast-in">
-      <a class="brand" href="{home}"><span class="bug" role="img" aria-label="Chaotic News">CN</span><span class="wordmark" aria-hidden="true">Chaotic News</span></a>
-      <p class="tagline">{TAGLINE}</p>
-      <a class="follow" href="{X_URL}" rel="me"><span class="dot" aria-hidden="true"></span>{LABEL["live_pill"]}</a>
-      <!-- YouTube channel link goes here (no channel link yet) -->
-    </div>
-  </div>
-  <nav class="sections" aria-label="Sections">
-    <ul>
-{items}
-    </ul>
-  </nav>
-{ticker}
-</header>
-
-<main id="main">
-{main_html}
-</main>
-
-<footer class="site-foot">
-  <div class="foot-in">
-    <p class="foot-brand"><span class="bug bug-sm" aria-hidden="true">CN</span> <span>{SITE_NAME}</span></p>
-    <p class="foot-satire"><strong>Satire.</strong> {SATIRE} {LABEL["foot_satire"]}</p>
-    <ul class="foot-nav" aria-label="Sections">{foot_links}</ul>
-    <p class="social"><a href="{X_URL}" rel="me"><span aria-hidden="true">📺 </span>{esc(LABEL["foot_x"].format(h=X_HANDLE))}</a></p>
-    <!-- YouTube channel link goes here (no channel link yet) -->
-    <p class="foot-links"><a href="{prefix}feed.xml">{LABEL["rss"]}</a> <span aria-hidden="true">&middot;</span> <a href="{prefix}stories.json">{LABEL["json"]}</a></p>
-    <p class="credit">{LABEL["credit"]}</p>
-  </div>
-</footer>{scripts}
-</body>
-</html>
-"""
-
-
-def ticker_for(stories, prefix):
-    if not stories:
-        heads = f'<li>{LABEL["ticker_empty"]}</li>'
-    else:
-        heads = "\n      ".join(
-            f'<li><a href="{prefix}stories/{s["slug"]}.html">{title_text(s["title"])}</a></li>'
-            for s in stories[:4])
-    return f"""  <section class="ticker" aria-label="{LABEL["ticker_aria"]}">
-    <div class="ticker-in">
-      <p class="ticker-label">{LABEL["ticker"]}</p>
-      <ul>
-      {heads}
-      </ul>
-    </div>
-  </section>"""
+NAV_NAME = {"Breaking": "Breaking", "Tech": "Tech", "Gaming": "Gaming", "Scams": "Scams",
+            "Beats": "Beats", "Weather": "Weather"}
+REPO_URL = "https://github.com/2three1y/chaoticnews"
+MADE_BY_URL = "https://2three1y.github.io/"
+DEFAULT_DATELINE = "SOMEWHERE ONLINE (CN)"
+PHOTO_CREDIT = "Illustration: Chaotic News. Not a real photo, obviously."
 
 
 def local(d):
@@ -527,14 +460,18 @@ def read_minutes(s):
     return max(1, round(len(re.findall(r"\w+", s["body"])) / 230))
 
 
-def card(s, prefix, base, heading="h3", stories=None, size="card"):
-    href = f"{base}{s['slug']}.html"
-    return (f'<li class="card">'
-            f'<div class="card-art">{art(s, prefix, size)}</div>'
-            f'<div class="card-text"><p class="card-kicker"><a href="{section_href(prefix, s["section"])}">{esc(sec_label(s["section"]))}</a></p>'
-            f'<{heading}><a href="{href}">{title_text(s["title"])}</a></{heading}>'
-            f'<p class="card-dek">{inline(s["dek"])}</p>'
-            f'<p class="meta"><time datetime="{s["when"].isoformat()}">{local(s["when"]).strftime("%b")} {local(s["when"]).day}, {short_time(s["when"])}</time></p></div></li>')
+def short_date(d):
+    d = local(d)
+    return f"{d.strftime('%b')} {d.day}"
+
+
+def topic_label(s, prefix=None):
+    """'Tech · Nov 2'. With a prefix the section name links to its section page."""
+    sec = esc(s["section"])
+    if prefix is not None:
+        sec = f'<a href="{section_href(prefix, s["section"])}">{sec}</a>'
+    return (f'<p class="topic">{sec} · <time datetime="{s["when"].isoformat()}">'
+            f'{short_date(s["when"])}</time></p>')
 
 
 def most_read(stories, exclude=(), n=5):
@@ -542,11 +479,145 @@ def most_read(stories, exclude=(), n=5):
     return sorted(pool, key=lambda s: zlib.crc32(("read" + s["slug"]).encode()))[:n]
 
 
+def item(s, prefix, base, heading="h3", thumb=True, dek=True):
+    """One numbered story in an <ol>: headline first (so VoiceOver reads '1. Headline'),
+    then the topic label, dek and picture. CSS puts the picture on the left."""
+    href = f"{base}{s['slug']}.html"
+    pic = f'<div class="item-pic">{art(s, prefix, "card")}</div>' if thumb else ""
+    d = f'<p class="item-dek">{inline(s["dek"])}</p>' if dek else ""
+    return (f'<li class="item{"" if thumb else " item-text"}"><div class="item-in">'
+            f'<{heading} class="item-head"><a href="{href}">{title_text(s["title"])}</a></{heading}>'
+            f'{topic_label(s)}{d}{pic}</div></li>')
+
+
+def story_list(items, cls="river"):
+    return f'<ol class="{cls}">\n    ' + "\n    ".join(items) + "\n  </ol>"
+
+
+def page(prefix, title, description, current, skip_label, main_html, ticker, scripts="", social=None):
+    home = f"{prefix}./" if prefix else "./"
+    nav = [("Home", home, "home")]
+    for sec in SECTIONS:
+        nav.append((NAV_NAME.get(sec, sec), section_href(prefix, sec), SECTION_SLUG[sec]))
+    nav.append(("All Stories", f"{prefix}stories/", "all"))
+    cur = ' aria-current="page"'
+    items = "\n".join(
+        f'      <li><a href="{href}"{cur if key == current else ""}>{esc(label)}</a></li>'
+        for label, href, key in nav)
+    foot_secs = "\n".join(
+        f'        <li><a href="{section_href(prefix, sec)}">{esc(sec_label(sec))}</a></li>' for sec in SECTIONS)
+    now = dt.datetime.now(TZ)
+    today = f"{now.strftime('%A, %B')} {now.day}, {now.year}"
+    return f"""<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title>
+<meta name="description" content="{esc(description)}">
+<meta name="theme-color" content="#cc0a17">
+{social_head(prefix, social)}
+<link rel="stylesheet" href="{prefix}style.css">
+<link rel="alternate" type="application/rss+xml" title="{SITE_NAME}" href="{prefix}feed.xml">
+</head>
+<body>
+<a class="skip" href="#main">{skip_label}</a>
+<header class="site">
+  <div class="topbar">
+    <div class="wrap topbar-in">
+      <p class="today"><time id="today" datetime="{now.date().isoformat()}">{today}</time></p>
+      <p class="satire-strip"><strong>Satire:</strong> {LABEL["satire_strip"]}</p>
+      <p class="topbar-x"><a href="{X_URL}" rel="me">{LABEL["live_pill"]}: @{X_HANDLE}</a></p>
+    </div>
+  </div>
+  <div class="mast">
+    <div class="wrap mast-in">
+      <p class="brand"><span class="bug" aria-hidden="true">CN</span><a class="wordmark" href="{home}">Chaotic News</a></p>
+      <p class="tagline">{TAGLINE}</p>
+    </div>
+  </div>
+  <nav class="sections" aria-label="Sections">
+    <ul class="wrap">
+{items}
+    </ul>
+  </nav>
+{ticker}
+</header>
+
+<main id="main" class="wrap">
+{main_html}
+</main>
+
+<footer class="site-foot">
+  <div class="wrap foot-in">
+    <div class="foot-col foot-about">
+      <p class="foot-brand"><span class="bug bug-sm" aria-hidden="true">CN</span> <span>{SITE_NAME}</span></p>
+      <p class="foot-tag">{TAGLINE}</p>
+      <p class="foot-satire"><strong>Satire.</strong> {SATIRE} {LABEL["foot_satire"]}</p>
+    </div>
+    <nav class="foot-col" aria-label="Sections, footer">
+      <h2 class="foot-head">Sections</h2>
+      <ul>
+        <li><a href="{home}">{LABEL["home"]}</a></li>
+{foot_secs}
+        <li><a href="{prefix}stories/">{LABEL["all"]}</a></li>
+      </ul>
+    </nav>
+    <div class="foot-col">
+      <h2 class="foot-head">Follow and More</h2>
+      <ul>
+        <li><a href="{X_URL}" rel="me">{esc(LABEL["foot_x"].format(h=X_HANDLE))}</a></li>
+        <li><a href="{prefix}feed.xml">{LABEL["rss"]}</a></li>
+        <li><a href="{prefix}stories.json">{LABEL["json"]}</a></li>
+        <li><a href="{REPO_URL}">View on GitHub</a></li>
+        <!-- YouTube channel link goes here (no channel link yet) -->
+      </ul>
+    </div>
+  </div>
+  <div class="wrap foot-base">
+    <p class="credit">{LABEL["credit"]} · <a href="{MADE_BY_URL}">Made by Chaotic Carter</a></p>
+    <p class="copy">© {now.year} {SITE_NAME}. All rights reserved, none of it real.</p>
+  </div>
+</footer>
+<script src="{prefix}site.js"></script>{scripts}
+</body>
+</html>
+"""
+
+
+def ticker_for(stories, prefix):
+    if not stories:
+        heads = f'<li>{LABEL["ticker_empty"]}</li>'
+    else:
+        heads = "\n        ".join(
+            f'<li><a href="{prefix}stories/{s["slug"]}.html">{title_text(s["title"])}</a></li>'
+            for s in stories[:3])
+    return f"""  <section class="ticker" aria-label="{LABEL["ticker_aria"]}">
+    <div class="wrap ticker-in">
+      <p class="ticker-label">{LABEL["ticker"]}</p>
+      <ol>
+        {heads}
+      </ol>
+    </div>
+  </section>"""
+
+
+def rail_most_read(stories, prefix_base, exclude=()):
+    pop = "\n    ".join(
+        f'<li><a href="{prefix_base}{o["slug"]}.html">{title_text(o["title"])}</a>{topic_label(o)}</li>'
+        for o in most_read(stories, exclude))
+    return f"""<section class="rail-box" aria-labelledby="popular-heading">
+  <h2 id="popular-heading" class="rail-head">{LABEL["most_read"]}</h2>
+  <ol class="most-read">
+    {pop}
+  </ol>
+</section>"""
+
+
 def render_story(s, stories):
     same = [o for o in stories if o["slug"] != s["slug"] and o["section"] == s["section"]]
     other = [o for o in stories if o["slug"] != s["slug"] and o["section"] != s["section"]]
-    rel = (same + other)[:4]
-    rel_html = "\n    ".join(card(o, "../", "", stories=stories) for o in rel)
+    rel = (same + other)[:6]
     corr = (f'\n  <p class="correction"><strong>Correction:</strong> {inline(s["correction"])}</p>'
             if s.get("correction") else "")
     url = f"{SITE_URL}stories/{s['slug']}.html"
@@ -559,26 +630,21 @@ def render_story(s, stories):
     upd = parse_date(s["updated"]) if s.get("updated") else s["when"]
     pub_line = ""
     if s.get("updated") and upd != s["when"]:
-        pub_line = f' <span aria-hidden="true">&middot;</span> {updated_line(s["when"], "Published")}'
-    pop = "\n    ".join(
-        f'<li><a href="{o["slug"]}.html">{title_text(o["title"])}</a></li>'
-        for o in most_read(stories, {s["slug"]}))
+        pub_line = f' · {updated_line(s["when"], "Published")}'
+    caption = f'<figcaption>{PHOTO_CREDIT}</figcaption>' if s.get("image") else ""
     main = f"""<div class="story-wrap">
 <article class="story">
-  <p class="kicker"><a href="{section_href('../', s['section'])}">{esc(sec_label(s['section']))}</a><span class="tag-satire">{LABEL["satire_tag"]}</span></p>
+  {topic_label(s, '../')}
   <h1>{title_text(s['title'])}</h1>
   <p class="dek">{inline(s['dek'])}</p>
   <div class="byline">
-    <span class="bug bug-sm" aria-hidden="true">CN</span>
-    <div>
-      <p class="by">By {author_html(s)}</p>
-      <p class="when">{updated_line(upd)}{pub_line} <span aria-hidden="true">&middot;</span> {read_label(read_minutes(s))}</p>
-    </div>
+    <p class="by">By {author_html(s)}</p>
+    <p class="when">{updated_line(upd)}{pub_line} · {read_label(read_minutes(s))}</p>
   </div>
-  <figure class="hero-art">{art(s, '../', 'hero', live=s['section'] == 'Breaking')}</figure>
-  <p class="satire-note"><strong>Satire.</strong> {SATIRE} {LABEL["story_satire"]}</p>
+  <figure class="hero-art">{art(s, '../', 'hero', live=s['section'] == 'Breaking')}{caption}</figure>
+  <p class="satire-note"><strong>{LABEL["satire_tag"]}.</strong> {SATIRE} {LABEL["story_satire"]}</p>
   <div class="body">
-  {markdown(s['body'], s.get('dateline'))}{corr}
+  {markdown(s['body'], s.get('dateline') or DEFAULT_DATELINE)}{corr}
   </div>
   <div class="share">
     <p class="share-label">{LABEL["share_head"]}</p>
@@ -593,19 +659,14 @@ def render_story(s, stories):
   </div>
 </article>
 
-<aside class="rail" aria-labelledby="popular-heading">
-  <h2 id="popular-heading" class="rail-head">{LABEL["most_read"]}</h2>
-  <ol class="most-read">
-    {pop}
-  </ol>
+<aside class="rail">
+{rail_most_read(stories, "", {s["slug"]})}
 </aside>
 </div>
 
 <section class="related" aria-labelledby="related-heading">
   <h2 id="related-heading" class="section-head">{LABEL["related"]}</h2>
-  <ul class="cards">
-    {rel_html}
-  </ul>
+  {story_list([item(o, "../", "") for o in rel], "river grid2")}
   <p class="more"><a href="./">{LABEL["all_link"]}</a></p>
 </section>"""
     social = {"type": "article", "title": plain_title, "description": satire_desc(s["dek"]),
@@ -626,101 +687,77 @@ def render_home(stories):
     if not stories:
         main = f'<h1 class="page-head">{LABEL["home"]}</h1>\n<p>{EMPTY_DEFAULT}</p>'
         return page("", f"{SITE_NAME}", TAGLINE, "home", "Skip to top stories", main, ticker_for(stories, ""), social=HOME_SOCIAL)
-    lead, rest = stories[0], stories[1:]
-    grid = rest[:3]
-    shown = {lead["slug"]} | {s["slug"] for s in grid}
-    pop = most_read(stories, {lead["slug"]})
-    more = [s for s in stories if s["slug"] not in shown]
-    seen, more_list = set(), []
-    for s in more:
-        if s["slug"] not in seen and s["slug"] != lead["slug"]:
-            seen.add(s["slug"])
-            more_list.append(s)
-    more_list = more_list[:8]
-    grid_html = "\n    ".join(card(s, "", "stories/", stories=stories) for s in grid)
-    pop_html = "\n    ".join(
-        f'<li><a href="stories/{s["slug"]}.html">{title_text(s["title"])}</a></li>' for s in pop)
-    more_html = "\n    ".join(
-        f'<li><span class="mini-kicker">{esc(sec_label(s["section"]))}</span> <a href="stories/{s["slug"]}.html">{title_text(s["title"])}</a></li>'
-        for s in more_list)
-    sec_counts = []
+    lead = stories[0]
+    latest = stories[1:8]
+    blocks = []
     for sec in SECTIONS:
-        n = sum(1 for s in stories if s["section"] == sec)
-        sec_counts.append(f'<li><a href="{section_href("", sec)}">{esc(sec_label(sec))} <span class="count">{n} {"story" if n == 1 else "stories"}</span></a></li>')
-    main = f"""<h1 class="page-head"><span class="vh">Chaotic News: </span>{LABEL["home"]}</h1>
-<div class="home-grid">
-<div class="home-main">
-<article class="lead">
-  <div class="lead-art">{art(lead, '', 'hero', live=True)}</div>
-  <p class="kicker"><a href="{section_href('', lead['section'])}">{esc(sec_label(lead['section']))}</a><span class="tag-satire">{LABEL["satire_tag"]}</span></p>
-  <h2 class="lead-head"><a href="stories/{lead['slug']}.html">{title_text(lead['title'])}</a></h2>
-  <p class="dek">{inline(lead['dek'])}</p>
-  <p class="meta">By {author_html(lead)} <span aria-hidden="true">&middot;</span> {updated_line(lead['when'])}</p>
+        mine = [s for s in stories if s["section"] == sec]
+        hid = f"sec-{SECTION_SLUG[sec]}"
+        if mine:
+            body = story_list([item(s, "", "stories/") for s in mine[:4]], "river grid2")
+            more = (f'<p class="more"><a href="{section_href("", sec)}">More {esc(sec)} stories '
+                    f'({len(mine)} in all)</a></p>')
+        else:
+            body = f'<p class="empty">{esc(EMPTY_NOTE.get(sec, EMPTY_DEFAULT))}</p>'
+            more = f'<p class="more"><a href="{section_href("", sec)}">Go to {esc(sec)}</a></p>'
+        blocks.append(f"""<section class="sec-block" aria-labelledby="{hid}">
+  <h2 id="{hid}" class="section-head"><a href="{section_href("", sec)}">{esc(sec_label(sec))}</a></h2>
+  {body}
+  {more}
+</section>""")
+    latest_html = "\n    ".join(
+        f'<li><a href="stories/{s["slug"]}.html">{title_text(s["title"])}</a>{topic_label(s)}</li>'
+        for s in latest)
+    main = f"""<h1 class="page-head">{LABEL["home"]}</h1>
+<div class="top-grid">
+<article class="lead-story">
+  <h2 class="lead-head"><a href="stories/{lead["slug"]}.html">{title_text(lead["title"])}</a></h2>
+  {topic_label(lead)}
+  <p class="lead-dek">{inline(lead["dek"])}</p>
+  <p class="lead-by">By {esc(lead["author"])}</p>
+  <figure class="lead-pic">{art(lead, "", "hero", live=lead["section"] == "Breaking")}</figure>
 </article>
-
-<section aria-labelledby="latest-heading">
-  <h2 id="latest-heading" class="section-head">{LABEL["latest"]}</h2>
-  <ul class="cards">
-    {grid_html}
-  </ul>
+<aside class="rail">
+<section class="rail-box" aria-labelledby="latest-heading">
+  <h2 id="latest-heading" class="rail-head">{LABEL["latest"]}</h2>
+  <ol class="latest">
+    {latest_html}
+  </ol>
+  <p class="more"><a href="stories/">{LABEL["all_link"]}</a></p>
 </section>
-</div>
-
-<aside class="rail" aria-label="Most read and more top stories">
-  <section aria-labelledby="popular-heading">
-    <h2 id="popular-heading" class="rail-head">{LABEL["most_read"]}</h2>
-    <ol class="most-read">
-    {pop_html}
-    </ol>
-  </section>
-  <section aria-labelledby="more-heading">
-    <h2 id="more-heading" class="rail-head">{LABEL["more_top"]}</h2>
-    <ul class="more-top">
-    {more_html}
-    </ul>
-  </section>
-  <section aria-labelledby="sections-heading">
-    <h2 id="sections-heading" class="rail-head">{LABEL["sections"]}</h2>
-    <ul class="sec-list">
-    {''.join(sec_counts)}
-    </ul>
-  </section>
 </aside>
 </div>
-<p class="more"><a href="stories/">All {len(stories)} stories, newest first (freshness not guaranteed)</a></p>"""
-    return page("", f"{SITE_NAME}: {TAGLINE}",
-                f"Satire news, updated daily. Latest: {smart_quotes(lead['title'])}",
+
+{chr(10).join(blocks)}
+
+<div class="bottom-rail">
+{rail_most_read(stories, "stories/", {lead["slug"]})}
+</div>"""
+    return page("", f"{SITE_NAME}: {TAGLINE}", f"Satire news, updated daily. Latest: {smart_quotes(lead['title'])}",
                 "home", "Skip to top stories", main, ticker_for(stories, ""), social=HOME_SOCIAL)
 
 
 def render_section(sec, stories):
     mine = [s for s in stories if s["section"] == sec]
     if mine:
-        items = "\n    ".join(card(s, "../", "../stories/", stories=stories) for s in mine)
-        body = f'<ul class="cards">\n    {items}\n  </ul>'
+        body = story_list([item(s, "../", "../stories/") for s in mine])
     else:
         body = f'<p class="empty">{esc(EMPTY_NOTE.get(sec, EMPTY_DEFAULT))}</p>'
-    pop = "\n    ".join(
-        f'<li><a href="../stories/{s["slug"]}.html">{title_text(s["title"])}</a></li>'
-        for s in most_read(stories, {s["slug"] for s in mine}))
     n = len(mine)
-    main = f"""<div class="home-grid">
-<div class="home-main">
+    main = f"""<div class="page-grid">
+<div class="page-main">
 <h1 class="section-title">{esc(sec_label(sec))}</h1>
-<p class="dek">{esc(SECTION_BLURB.get(sec, ""))} {n} {"story" if n == 1 else "stories"} so far.</p>
+<p class="section-dek">{esc(SECTION_BLURB.get(sec, ""))} {n} {"story" if n == 1 else "stories"} so far.</p>
 <section aria-labelledby="sec-latest">
   <h2 id="sec-latest" class="section-head">Latest in {esc(sec)}</h2>
   {body}
 </section>
+<p class="more"><a href="../stories/">{LABEL["all_link"]}</a></p>
 </div>
-<aside class="rail" aria-labelledby="popular-heading">
-  <h2 id="popular-heading" class="rail-head">{LABEL["most_read"]}</h2>
-  <ol class="most-read">
-    {pop}
-  </ol>
+<aside class="rail">
+{rail_most_read(stories, "../stories/", {s["slug"] for s in mine})}
 </aside>
-</div>
-<p class="more"><a href="../stories/">{LABEL["all_link"]}</a></p>"""
+</div>"""
     return page("../", f"{esc(sec)} | {SITE_NAME}", f"{SECTION_BLURB.get(sec, '')} Satire from {SITE_NAME}.",
                 SECTION_SLUG[sec], f"Skip to {esc(sec)} stories", main, ticker_for(stories, "../"),
                 social={"type": "website", "title": f"{sec} | {OG_SITE_NAME}",
@@ -731,24 +768,22 @@ def render_section(sec, stories):
 
 
 def render_index(stories):
-    items = "\n    ".join(card(s, "../", "", stories=stories) for s in stories) or f"<li>{EMPTY_DEFAULT}</li>"
+    items = story_list([item(s, "../", "") for s in stories]) if stories else f"<p>{EMPTY_DEFAULT}</p>"
     secs = []
     for sec in SECTIONS:
         mine = [s for s in stories if s["section"] == sec]
         if mine:
-            lis = "".join(f'<li><a href="{s["slug"]}.html">{title_text(s["title"])}</a></li>' for s in mine)
-            body = f'<ul>{lis}</ul>'
+            lis = "".join(f'<li><a href="{s["slug"]}.html">{title_text(s["title"])}</a>{topic_label(s)}</li>' for s in mine)
+            body = f'<ol class="latest">{lis}</ol>'
         else:
-            body = f'<p>{esc(EMPTY_NOTE.get(sec, EMPTY_DEFAULT))}</p>'
-        secs.append(f'<h3 id="{sec.lower()}"><a href="{section_href("../", sec)}">{esc(sec_label(sec))}</a></h3>\n  {body}')
+            body = f'<p class="empty">{esc(EMPTY_NOTE.get(sec, EMPTY_DEFAULT))}</p>'
+        secs.append(f'<h3 id="{sec.lower()}" class="sub-head"><a href="{section_href("../", sec)}">{esc(sec_label(sec))}</a></h3>\n  {body}')
     main = f"""<h1 class="section-title">{LABEL["all"]}</h1>
-<p class="dek">{LABEL["index_dek"].format(n=len(stories))}</p>
+<p class="section-dek">{LABEL["index_dek"].format(n=len(stories))}</p>
 
 <section aria-labelledby="newest-heading">
   <h2 id="newest-heading" class="section-head">{LABEL["newest"]}</h2>
-  <ul class="cards">
-    {items}
-  </ul>
+  {items}
 </section>
 
 <section class="by-section" aria-labelledby="sections-heading">
@@ -760,6 +795,7 @@ def render_index(stories):
                 social={"type": "website", "title": f"All stories | {OG_SITE_NAME}",
                         "description": "Every Chaotic News story, newest first. Satire.",
                         "url": f"{SITE_URL}stories/", "image": SITE_CARD, "image_alt": SITE_CARD_ALT})
+
 
 
 def render_feed(stories):
@@ -829,6 +865,16 @@ def build_cards(stories):
 SHARE_JS = '// Chaotic News share buttons. Local file, no trackers.\n// Written by tools/add_story.py (SHARE_JS); the copy messages come from each\n// button\'s data-done / data-fail, set from LABEL in the generator.\n(function () {\n  var status = document.getElementById("share-status");\n  function say(msg) {\n    if (!status) return;\n    status.textContent = msg;\n    clearTimeout(say.t);\n    say.t = setTimeout(function () { status.textContent = ""; }, 5000);\n  }\n  document.querySelectorAll("[data-copy]").forEach(function (b) {\n    if (!navigator.clipboard) return;\n    b.hidden = false;\n    b.addEventListener("click", function () {\n      navigator.clipboard.writeText(b.getAttribute("data-copy")).then(\n        function () { say(b.getAttribute("data-done") || "Link copied."); },\n        function () { say(b.getAttribute("data-fail") || "Couldn\'t copy the link."); });\n    });\n  });\n  document.querySelectorAll("[data-share]").forEach(function (b) {\n    if (!navigator.share) return;\n    b.hidden = false;\n    b.addEventListener("click", function () {\n      navigator.share({ title: b.getAttribute("data-title"), url: b.getAttribute("data-share") }).catch(function () {});\n    });\n  });\n})();\n'
 
 
+SITE_JS = ("// Chaotic News: shows today's date in the masthead. Local file, no trackers.\n"
+           '(function () {\n'
+           '  var t = document.getElementById("today");\n'
+           '  if (!t || !Date.prototype.toLocaleDateString) return;\n'
+           '  var d = new Date();\n'
+           '  t.textContent = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });\n'
+           '  t.setAttribute("datetime", d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"));\n'
+           '})();\n')
+
+
 def rebuild():
     stories = load_stories()
     build_cards(stories)
@@ -847,6 +893,7 @@ def rebuild():
     (ROOT / "index.html").write_text(render_home(stories), encoding="utf-8")
     (ROOT / "feed.xml").write_text(render_feed(stories), encoding="utf-8")
     (ROOT / "share.js").write_text(SHARE_JS, encoding="utf-8")
+    (ROOT / "site.js").write_text(SITE_JS, encoding="utf-8")
     (ROOT / "stories.json").write_text(json.dumps(manifest(stories), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return stories
 
