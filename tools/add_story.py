@@ -540,6 +540,7 @@ ADS = [
 ]
 
 TRENDING = [
+    ("Clocky the Agentic Clock", "local-agentic-clock-says-task-will-be-done-in-2-minutes-has-said-so-since-tuesday"),
     ("Big D Randy", "big-d-randy-takes-out-local-ai"),
     ("Steve From Microsoft", "steve-from-microsoft-asks-supervisor-also-named-steve"),
     ("V-Bucks Crash", "v-bucks-freefall-as-item-shop-goes-free"),
