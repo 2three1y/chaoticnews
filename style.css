@@ -266,3 +266,10 @@ ol.cards>li::marker,ol.sec-grid>li::marker,ol.river>li::marker,.latest li::marke
   .ad-wide .ad-head{font-size:1.4rem}
   .newsletter .nl-in{padding:1.8rem 2rem}
 }
+
+/* Reply stories: our X post + where the real news came from */
+.x-reply,.x-sources{margin:1.6rem 0;padding:1rem 1.1rem;border-left:6px solid var(--red);background:#f7f7f8}
+.x-reply-head{font:800 1.15rem/1.25 var(--head);margin:0 0 .6rem}
+.x-reply blockquote{margin:0}
+.x-sources ul{margin:0;padding-left:1.2rem}
+.x-sources li{margin:.3rem 0}

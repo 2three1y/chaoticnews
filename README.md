@@ -2,7 +2,7 @@
 
 Unbiased. Unverified. Unhinged.
 
-**Chaotic News is satire. All stories are made up.** No real news, no real scams, nobody should send anyone a gift card.
+**Chaotic News is satire. Every joke is made up.** Reply stories start from real news (told accurately, with sources); everything else is made up. No no real scams, nobody should send anyone a gift card.
 
 Live: https://2three1y.github.io/chaoticnews/
 
@@ -67,6 +67,23 @@ More paragraphs. **Bold**, *italic* and [links](https://example.com) work.
 - `author` defaults to "Chaotic News Network Staff". Optional: `author_title`, `featured`, `dateline`, `correction`, `updated` (a later date/time, shown as the story's "Updated" line).
 - Pictures: `image` (a path inside the repo, for example `images/printer.png`) and `image_alt` (what the picture shows, for VoiceOver). If `image` is set without `image_alt`, the build stops with an error. Without an `image`, each story gets an original title-card graphic for its section, which already has alt text. Only use pictures we made or are allowed to use, no photos of real people.
 - Use `##` for subheads (each page already has its one main heading, the title).
+
+### Reply stories (real news, chaotic voice)
+
+When @ChaoticNewsHQ replies to a post on X, the reply can become a story: our reply is the headline, the real news is told accurately but in a funny voice, and the made-up part sits under its own "Our Take (This Part Is Made Up)" subhead. Add these fields to the front matter:
+
+```
+x_post: https://x.com/ChaoticNewsHQ/status/...   (our reply; it gets embedded)
+x_post_text: GAMING DESK: the reply's exact words
+x_post_date: November 3, 2026
+x_replied_to: IGN
+x_replied_to_url: https://x.com/IGN/status/...
+source_url: https://... (the real article)
+source_title: The article's title
+source_outlet: IGN
+```
+
+`source2_url`, `source2_title` and `source2_outlet` are optional. A reply story gets a "Reply Story" note instead of "all stories are made up", our post embedded with X's standard blockquote (it reads as a plain link if X's script doesn't load), and a "Where the Real News Came From" list. No real tragedies, layoffs or punching down. These run shorter (250 to 400 words).
 
 ### Story format (JSON)
 

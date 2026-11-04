@@ -35,7 +35,7 @@ STORIES = ROOT / "stories"
 SITE_URL = "https://2three1y.github.io/chaoticnews/"
 SITE_NAME = "Chaotic News Network"
 TAGLINE = "Unbiased. Unverified. Unhinged."
-SATIRE = "Chaotic News is satire. All stories are made up."
+SATIRE = "Chaotic News is satire. Some stories start from real news, but every joke is made up."
 X_HANDLE = "ChaoticNewsHQ"
 X_URL = f"https://x.com/{X_HANDLE}"
 SECTIONS = ["Breaking", "Tech", "Gaming", "Scams", "Beats", "Weather"]
@@ -54,7 +54,7 @@ SECTION_LABEL = {
 LABEL = {
     "home": "Top Stories (Probably)",
     "all": "All Stories (Yes, All of Them)",
-    "satire_strip": "every story is made up, even this sentence",
+    "satire_strip": "some stories are real news, every joke is made up, even this sentence",
     "live_pill": "Live on X",
     "ticker": "Breaking (Still)",
     "ticker_aria": "Breaking news, still breaking",
@@ -308,13 +308,16 @@ def section_href(prefix, sec):
 LAZY = {"card": 'loading="lazy" '}
 
 
+_SVG_N = __import__("itertools").count(1)
+
+
 def svg_art(s, size="card", live=False):
     """Original title-card graphic for a story (no photos). Returns HTML."""
     sec = s["section"]
     c1, c2, acc = PALETTE.get(sec, PALETTE["Breaking"])
     h = zlib.crc32(s["slug"].encode())
     cx, cy = 360 + h % 220, 90 + (h >> 8) % 140
-    gid = f"g{h % 100000}-{size}"
+    gid = f"g{h % 100000}-{size}-{next(_SVG_N)}"  # unique per use (a story can appear twice on a page)
     rings = "".join(
         f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="#fff" stroke-opacity="{0.16 - i * 0.025:.3f}" stroke-width="{10 - i * 2}"/>'
         for i, r in enumerate((60, 110, 165, 225)))
@@ -767,6 +770,55 @@ def body_html(s):
     return markdown(s['body'], s.get('dateline') or DEFAULT_DATELINE)
 
 
+# ---- Reply stories (Carter, 2026-11-03: "We reply and our replies become stories
+# lol and we could embed our tweets. We could also tell the actual news in a
+# chaotic way.") A story with `x_post:` in its front matter is a reply story:
+# the news part is REAL and sourced, the jokes are ours. It gets its own note
+# (instead of "all stories are made up"), our post embedded with X's standard
+# blockquote (a plain readable link if X's script doesn't load), and a
+# "where the real news came from" list with the source and the post we replied to.
+# Front matter: x_post, x_post_text, x_post_date, x_replied_to (@handle),
+# x_replied_to_url, source_url, source_title, source_outlet,
+# optional source2_url, source2_title, source2_outlet.
+X_WIDGET = '\n<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
+REPLY_NOTE = ("Real news, chaotic voice. The news in this story is real, and the source is linked at the bottom. "
+              "The jokes, the \u201carea man\u201d and anything he says are made up by us. This started as our reply on X.")
+
+
+def satire_note(s):
+    if s.get("x_post"):
+        return f'<p class="satire-note"><strong>Reply Story.</strong> {REPLY_NOTE}</p>'
+    return f'<p class="satire-note"><strong>{LABEL["satire_tag"]}.</strong> {SATIRE} {LABEL["story_satire"]}</p>'
+
+
+def x_reply_block(s):
+    if not s.get("x_post"):
+        return ""
+    who = s.get("x_replied_to", "").lstrip("@")
+    srcs = []
+    for n in ("", "2"):
+        u = s.get(f"source{n}_url")
+        if u:
+            outlet = s.get(f"source{n}_outlet", "")
+            srcs.append(f'<li>The real story: <a href="{esc(u)}">{esc(smart_quotes(s.get(f"source{n}_title", u)))}</a>'
+                        f'{f" ({esc(outlet)})" if outlet else ""}</li>')
+    if s.get("x_replied_to_url"):
+        srcs.append(f'<li>The post we replied to: <a href="{esc(s["x_replied_to_url"])}">@{esc(who)} on X</a></li>')
+    srcs.append(f'<li>Our reply: <a href="{esc(s["x_post"])}">@{X_HANDLE} on X</a></li>')
+    tweet_url = s["x_post"].replace("https://x.com/", "https://twitter.com/")
+    return f"""
+  <section class="x-reply" aria-labelledby="x-reply-heading">
+    <h2 id="x-reply-heading" class="x-reply-head">Our Reply on X</h2>
+    <blockquote class="twitter-tweet" data-dnt="true" data-conversation="none"><p lang="en" dir="ltr">{esc(s.get("x_post_text", ""))}</p>&mdash; Chaotic News (@{X_HANDLE}) <a href="{esc(tweet_url)}">{esc(s.get("x_post_date", ""))}</a></blockquote>
+  </section>
+  <section class="x-sources" aria-labelledby="x-sources-heading">
+    <h2 id="x-sources-heading" class="x-reply-head">Where the Real News Came From</h2>
+    <ul>
+      {"".join(srcs)}
+    </ul>
+  </section>"""
+
+
 def render_story(s, stories):
     same = [o for o in stories if o["slug"] != s["slug"] and o["section"] == s["section"]]
     other = [o for o in stories if o["slug"] != s["slug"] and o["section"] != s["section"]]
@@ -814,10 +866,10 @@ def render_story(s, stories):
     </ul>
   </div>
   <figure class="hero-art">{pic(s, '../', 'pic', lazy=False)}{caption}</figure>
-  <p class="satire-note"><strong>{LABEL["satire_tag"]}.</strong> {SATIRE} {LABEL["story_satire"]}</p>
+  {satire_note(s)}
   <div class="body">
   {body_html(s)}{corr}
-  </div>
+  </div>{x_reply_block(s)}
   <div class="share">
     <p class="share-label">{LABEL["share_head"]}</p>
     <ul>
@@ -860,11 +912,11 @@ def render_story(s, stories):
               "section": s["section"], "author": s["author"]}
     return page("../", f"{title_text(s['title'])} | {SITE_NAME}", f"{smart_quotes(s['dek'])} Satire from {SITE_NAME}.",
                 SECTION_SLUG[s["section"]], "Skip to story", main, ticker_for(stories, "../"),
-                '\n<script src="../share.js"></script>', social, len(stories))
+                '\n<script src="../share.js"></script>' + (X_WIDGET if s.get("x_post") else ""), social, len(stories))
 
 
 HOME_SOCIAL = {"type": "website", "title": f"{OG_SITE_NAME}: {TAGLINE}",
-               "description": "Breaking news that never happened. Every story is made up. Satire.",
+               "description": "Breaking news that never happened, plus real news told chaotic. Every joke is made up. Satire.",
                "url": SITE_URL, "image": SITE_CARD, "image_alt": SITE_CARD_ALT}
 
 
